@@ -384,6 +384,7 @@
 .ws { cursor: text; }
 
 .hl {
+  position: relative;
   border-radius: 4px;
   border-bottom: 2px solid rgba(192, 112, 64, 0.55);
   background: rgba(222, 184, 135, 0.45);
@@ -393,10 +394,92 @@
 
   &:hover { background: rgba(222, 184, 135, 0.65); }
 
+  &.has-note::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #C07040;
+    box-shadow: 0 0 0 1px #F5F0EA;
+  }
+
   &.is-active {
     border-bottom-color: #6B4C3B;
     background: rgba(192, 112, 64, 0.45);
   }
+}
+
+.note-tooltip {
+  --tooltip-start-y: calc(-100% - 6px);
+
+  position: fixed;
+  z-index: 240;
+  width: max-content;
+  min-width: 140px;
+  max-width: 320px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #3B2F2F;
+  box-shadow: 0 10px 28px rgba(59, 47, 47, 0.28);
+  color: #F5F0EA;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 10px));
+  animation: note-tooltip-enter 140ms ease-out;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    border-width: 6px 6px 0;
+    border-style: solid;
+    border-color: #3B2F2F transparent transparent;
+    transform: translateX(-50%);
+  }
+
+  &.is-below {
+    --tooltip-start-y: 6px;
+
+    transform: translate(-50%, 10px);
+
+    &::after {
+      top: -6px;
+      bottom: auto;
+      border-width: 0 6px 6px;
+      border-color: transparent transparent #3B2F2F;
+    }
+  }
+}
+
+.note-tooltip-label {
+  display: block;
+  margin-bottom: 3px;
+  color: rgba(222, 184, 135, 0.85);
+  font-size: 0.65rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.note-tooltip-text {
+  margin: 0;
+  color: #F5F0EA;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+@keyframes note-tooltip-enter {
+  from {
+    opacity: 0;
+    transform: translate(-50%, var(--tooltip-start-y));
+  }
+
+  to { opacity: 1; }
 }
 
 .note-panel {
@@ -570,4 +653,8 @@
   .editor-actions { flex-direction: column-reverse; }
   .btn-secondary, .save-story-btn { width: 100%; }
   .alert { padding: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .note-tooltip { animation: none; }
 }

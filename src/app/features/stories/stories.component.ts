@@ -17,6 +17,8 @@ interface TextRange {
 }
 
 const UNTITLED_STORY = 'Untitled Story';
+const TOOLTIP_MAX_WIDTH = 320;
+const TOOLTIP_EDGE_GAP = 12;
 
 function plainSegments(text: string, start: number): Segment[] {
   const segments: Segment[] = [];
@@ -68,6 +70,7 @@ export class StoriesComponent implements OnInit {
   readonly dictionarySuccess = signal(false);
   readonly lostHighlightCount = signal(0);
   readonly deleteStoryId = signal<string | null>(null);
+  readonly hoveredNote = signal<{ text: string; x: number; y: number; placement: 'above' | 'below' } | null>(null);
   private isCreatingHighlight = false;
 
   readonly selectedStory = computed(() =>
@@ -120,6 +123,7 @@ export class StoriesComponent implements OnInit {
   }
 
   openStory(id: string): void {
+    this.hoveredNote.set(null);
     this.selectedStoryId.set(id);
     this.mode.set('read');
     this.lostHighlightCount.set(0);
@@ -127,6 +131,7 @@ export class StoriesComponent implements OnInit {
   }
 
   startEdit(): void {
+    this.hoveredNote.set(null);
     const story = this.selectedStory();
     if (!story) return;
     this.editTitle.set(story.title);
@@ -147,6 +152,7 @@ export class StoriesComponent implements OnInit {
   }
 
   async saveEdits(): Promise<void> {
+    this.hoveredNote.set(null);
     const story = this.selectedStory();
     if (!story) return;
     const anchored = reanchorHighlights(this.editContent(), story.highlights);
@@ -185,6 +191,30 @@ export class StoriesComponent implements OnInit {
     this.openHighlight(highlight);
   }
 
+  onHighlightHover(event: MouseEvent, highlight: StoryHighlight): void {
+    if (!highlight.note.trim()) return;
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const placement = rect.top > 140 ? 'above' : 'below';
+    this.hoveredNote.set({
+      text: highlight.note,
+      x: this.clampTooltipX(rect.left + rect.width / 2),
+      y: placement === 'above' ? rect.top : rect.bottom,
+      placement,
+    });
+  }
+
+  // The tooltip is centred on the word, so one near either edge would hang off screen.
+  private clampTooltipX(centre: number): number {
+    const halfWidth = TOOLTIP_MAX_WIDTH / 2 + TOOLTIP_EDGE_GAP;
+    const rightLimit = window.innerWidth - halfWidth;
+    if (rightLimit < halfWidth) return window.innerWidth / 2;
+    return Math.min(Math.max(centre, halfWidth), rightLimit);
+  }
+
+  onHighlightLeave(): void {
+    this.hoveredNote.set(null);
+  }
+
   async saveNote(): Promise<void> {
     const story = this.selectedStory();
     const highlight = this.activeHighlight();
@@ -206,6 +236,7 @@ export class StoriesComponent implements OnInit {
   }
 
   async removeHighlight(): Promise<void> {
+    this.hoveredNote.set(null);
     const story = this.selectedStory();
     const highlightId = this.activeHighlightId();
     if (!story || !highlightId) return;
@@ -249,6 +280,7 @@ export class StoriesComponent implements OnInit {
   }
 
   async confirmDelete(): Promise<void> {
+    this.hoveredNote.set(null);
     const id = this.deleteStoryId();
     if (!id) return;
     this.deleteStoryId.set(null);

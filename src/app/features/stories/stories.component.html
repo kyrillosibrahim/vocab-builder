@@ -151,7 +151,10 @@
                     <mark
                       class="hl"
                       [class.is-active]="activeHighlightId() === seg.highlight.id"
+                      [class.has-note]="seg.highlight.note.trim().length > 0"
                       [attr.data-start]="seg.start"
+                      (mouseenter)="onHighlightHover($event, seg.highlight)"
+                      (mouseleave)="onHighlightLeave()"
                       (click)="onHighlightClick(seg.highlight)">{{ seg.text }}</mark>
                   }
                 }
@@ -232,6 +235,17 @@
     </div>
   }
 </div>
+
+@if (hoveredNote(); as note) {
+  <div
+    class="note-tooltip"
+    [class.is-below]="note.placement === 'below'"
+    [style.left.px]="note.x"
+    [style.top.px]="note.y">
+    <span class="note-tooltip-label">Note</span>
+    <p class="note-tooltip-text">{{ note.text }}</p>
+  </div>
+}
 
 <app-confirm-dialog
   [isOpen]="deleteStoryId() !== null"
