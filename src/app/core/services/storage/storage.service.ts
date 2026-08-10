@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { openDB, IDBPDatabase } from 'idb';
 import { Word, WordFilter } from '../../models/word.model';
+import { Story } from '../../models/story.model';
 import { BlobRecord } from '../../models/storage.model';
 import { DB_CONSTANTS } from '../../constants/app.constants';
 
@@ -21,6 +22,10 @@ export class StorageService {
           wordStore.createIndex('by-date', 'createdAt');
           wordStore.createIndex('by-word', 'englishWord');
           wordStore.createIndex('by-favorite', 'isFavorite');
+        }
+        if (!db.objectStoreNames.contains(DB_CONSTANTS.STORIES_STORE)) {
+          const storyStore = db.createObjectStore(DB_CONSTANTS.STORIES_STORE, { keyPath: 'id' });
+          storyStore.createIndex('by-date', 'createdAt');
         }
         if (!db.objectStoreNames.contains(DB_CONSTANTS.BLOBS_STORE)) {
           const blobStore = db.createObjectStore(DB_CONSTANTS.BLOBS_STORE, { keyPath: 'id' });
@@ -120,6 +125,29 @@ export class StorageService {
     const db = await this.dbPromise;
     const existing = await db.getFromIndex(DB_CONSTANTS.WORDS_STORE, 'by-word', englishWord.toLowerCase().trim());
     return !!existing;
+  }
+
+  // --- STORY OPERATIONS ---
+
+  async getAllStories(): Promise<Story[]> {
+    const db = await this.dbPromise;
+    const stories = await db.getAll(DB_CONSTANTS.STORIES_STORE);
+    return stories.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getStory(id: string): Promise<Story | undefined> {
+    const db = await this.dbPromise;
+    return db.get(DB_CONSTANTS.STORIES_STORE, id);
+  }
+
+  async saveStory(story: Story): Promise<void> {
+    const db = await this.dbPromise;
+    await db.put(DB_CONSTANTS.STORIES_STORE, story);
+  }
+
+  async deleteStory(id: string): Promise<void> {
+    const db = await this.dbPromise;
+    await db.delete(DB_CONSTANTS.STORIES_STORE, id);
   }
 
   // --- BLOB OPERATIONS ---

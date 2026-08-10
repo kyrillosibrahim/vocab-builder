@@ -1,0 +1,243 @@
+<div class="page animate-fade-in">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">My <span class="gradient-text">Stories</span></h1>
+      <p class="page-subtitle">Write freely, highlight what matters, and keep notes in context.</p>
+    </div>
+    <button type="button" class="btn-primary new-story-btn" (click)="onNewStory()">
+      <span>
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        New Story
+      </span>
+    </button>
+  </div>
+
+  @if (storyService.error()) {
+    <div class="alert alert-error animate-slide-up">
+      <div class="alert-icon">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+        </svg>
+      </div>
+      <p class="alert-text">{{ storyService.error() }}</p>
+      <button type="button" class="alert-close" aria-label="Dismiss error" (click)="storyService.clearError()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  }
+
+  @if (lostHighlightCount() > 0) {
+    <div class="alert alert-error animate-slide-up">
+      <div class="alert-icon">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+        </svg>
+      </div>
+      <p class="alert-text">
+        {{ lostHighlightCount() }} {{ lostHighlightCount() === 1 ? 'highlight no longer matches' : 'highlights no longer match' }}
+        the edited text and {{ lostHighlightCount() === 1 ? 'was' : 'were' }} removed.
+      </p>
+      <button type="button" class="alert-close" aria-label="Dismiss warning" (click)="lostHighlightCount.set(0)">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  }
+
+  @if (!isInitialLoad() && storyService.storyCount() === 0) {
+    <div class="empty-card glass">
+      <app-empty-state
+        title="No stories yet"
+        message="Create a story, then click a word or select a phrase to attach a note."
+        icon="book" />
+    </div>
+  }
+
+  @if (storyService.storyCount() > 0) {
+    <div class="stories-layout">
+      <aside class="story-list-pane glass">
+        <div class="list-heading">
+          <h2>Stories</h2>
+          <span class="count-chip">{{ storyService.storyCount() }}</span>
+        </div>
+        <div class="story-list">
+          @for (story of storyService.stories(); track story.id) {
+            <article class="story-card" [class.is-selected]="selectedStoryId() === story.id">
+              <button type="button" class="story-open" (click)="openStory(story.id)">
+                <h3>{{ story.title || 'Untitled Story' }}</h3>
+                <p class="story-preview">{{ story.content || 'No text yet' }}</p>
+                <div class="story-meta">
+                  <span class="highlight-chip">
+                    {{ story.highlights.length }} {{ story.highlights.length === 1 ? 'highlight' : 'highlights' }}
+                  </span>
+                  <span>{{ formatDate(story.createdAt) }}</span>
+                </div>
+              </button>
+              <button
+                type="button"
+                class="delete-story-btn"
+                aria-label="Delete story"
+                (click)="requestDelete($event, story.id)">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="m19 7-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </article>
+          }
+        </div>
+      </aside>
+
+      <section class="story-detail glass">
+        @if (selectedStory(); as story) {
+          <div class="detail-header">
+            <div>
+              <span class="detail-label">Opened story</span>
+              <h2>{{ story.title || 'Untitled Story' }}</h2>
+            </div>
+            <div class="mode-switch" role="group" aria-label="Story mode">
+              <button type="button" [class.is-active]="mode() === 'read'" (click)="cancelEdit()">Read</button>
+              <button type="button" [class.is-active]="mode() === 'edit'" (click)="startEdit()">Edit</button>
+            </div>
+          </div>
+
+          @if (mode() === 'edit') {
+            <div class="story-editor animate-fade-in">
+              <label for="story-title">Title</label>
+              <input
+                id="story-title"
+                type="text"
+                class="input-premium story-title-input"
+                placeholder="Story title"
+                [ngModel]="editTitle()"
+                (ngModelChange)="editTitle.set($event)" />
+
+              <label for="story-content">Story or text</label>
+              <textarea
+                id="story-content"
+                class="input-premium story-content-input"
+                placeholder="Write or paste any text here..."
+                [ngModel]="editContent()"
+                (ngModelChange)="editContent.set($event)"></textarea>
+
+              <div class="editor-actions">
+                <button type="button" class="btn-secondary" (click)="cancelEdit()">Cancel</button>
+                <button type="button" class="btn-primary save-story-btn" (click)="saveEdits()">
+                  <span>Save</span>
+                </button>
+              </div>
+            </div>
+          } @else {
+            <div class="reader-layout" [class.has-note]="activeHighlightId() !== null">
+              <div #storyBody class="story-body" (mouseup)="onSelectionEnd()">
+                @if (!story.content) {
+                  <p class="body-placeholder">This story is empty. Switch to Edit to add text.</p>
+                }
+                @for (seg of segments(); track seg.kind + '-' + seg.start) {
+                  @if (seg.kind === 'text') {
+                    @if (isWhitespace(seg.text)) {
+                      <span class="ws" [attr.data-start]="seg.start">{{ seg.text }}</span>
+                    } @else {
+                      <span class="tok" [attr.data-start]="seg.start" (click)="onWordClick(seg)">{{ seg.text }}</span>
+                    }
+                  } @else {
+                    <mark
+                      class="hl"
+                      [class.is-active]="activeHighlightId() === seg.highlight.id"
+                      [attr.data-start]="seg.start"
+                      (click)="onHighlightClick(seg.highlight)">{{ seg.text }}</mark>
+                  }
+                }
+              </div>
+
+              @if (activeHighlight(); as highlight) {
+                <aside class="note-panel animate-slide-up">
+                  <div class="note-header">
+                    <div>
+                      <span class="note-label">Highlight note</span>
+                      <h3>{{ highlight.text }}</h3>
+                    </div>
+                    <button type="button" class="close-note-btn" aria-label="Close note" (click)="closeNotePanel()">
+                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                      </svg>
+                    </button>
+                  </div>
+
+                  <label for="highlight-note">Note</label>
+                  <textarea
+                    id="highlight-note"
+                    class="input-premium note-input"
+                    placeholder="Add a note about this highlight..."
+                    [ngModel]="noteDraft()"
+                    (ngModelChange)="noteDraft.set($event)"></textarea>
+                  <div class="note-save-row">
+                    <button type="button" class="btn-primary save-note-btn" (click)="saveNote()">
+                      <span>Save note</span>
+                    </button>
+                    @if (noteSaved()) {
+                      <span class="saved-line">Saved</span>
+                    }
+                  </div>
+
+                  @if (wordCandidate()) {
+                    <div class="dictionary-section">
+                      @if (dictionaryWord(); as word) {
+                        <span class="dictionary-label">In my words</span>
+                        <p class="dictionary-word">{{ word.englishWord }}</p>
+                        <p class="dictionary-pronunciation">{{ word.pronunciationText }}</p>
+                        <p class="dictionary-translation arabic-text">{{ word.arabicTranslation }}</p>
+                        <p class="dictionary-definition">{{ word.englishDefinition }}</p>
+                        @if (dictionarySuccess()) {
+                          <p class="dictionary-success">Added to your vocabulary.</p>
+                        }
+                      } @else {
+                        <button
+                          type="button"
+                          class="add-word-btn"
+                          [disabled]="wordService.isLoading()"
+                          (click)="addCandidateToWords()">
+                          @if (wordService.isLoading()) {
+                            <svg class="animate-spin" width="16" height="16" fill="none" viewBox="0 0 24 24">
+                              <circle opacity="0.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path opacity="0.75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          }
+                          Add to my words
+                        </button>
+                        @if (wordService.error()) {
+                          <p class="dictionary-error">{{ wordService.error() }}</p>
+                        }
+                      }
+                    </div>
+                  }
+
+                  <button type="button" class="remove-highlight-btn" (click)="removeHighlight()">
+                    Remove highlight
+                  </button>
+                </aside>
+              }
+            </div>
+          }
+        }
+      </section>
+    </div>
+  }
+</div>
+
+<app-confirm-dialog
+  [isOpen]="deleteStoryId() !== null"
+  title="Delete Story"
+  [message]="'Are you sure you want to delete \'' + (storyPendingDelete()?.title || 'Untitled Story') + '\'? This cannot be undone.'"
+  confirmText="Delete"
+  confirmType="danger"
+  (confirmed)="confirmDelete()"
+  (cancelled)="cancelDelete()" />

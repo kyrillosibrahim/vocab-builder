@@ -19,6 +19,12 @@ export const routes: Routes = [
     title: 'My Words - Vocab Builder',
   },
   {
+    path: 'stories',
+    loadComponent: () =>
+      import('./features/stories/stories.component').then(m => m.StoriesComponent),
+    title: 'Stories - Vocab Builder',
+  },
+  {
     path: '**',
     redirectTo: 'add',
   },
