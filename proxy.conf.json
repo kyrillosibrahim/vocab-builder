@@ -1,0 +1,7 @@
+{
+  "/api": {
+    "target": "https://vocab-builder-lime.vercel.app",
+    "secure": true,
+    "changeOrigin": true
+  }
+}

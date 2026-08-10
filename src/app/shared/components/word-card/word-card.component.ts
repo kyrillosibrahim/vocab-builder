@@ -1,6 +1,5 @@
-import { Component, inject, input, output, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, input, linkedSignal, output, signal } from '@angular/core';
 import { Word } from '../../../core/models/word.model';
-import { WordService } from '../../../core/services/word/word.service';
 import { AudioPlayerComponent } from '../audio-player/audio-player.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
@@ -10,33 +9,15 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
   templateUrl: './word-card.component.html',
   styleUrl: './word-card.component.scss',
 })
-export class WordCardComponent implements OnInit, OnDestroy {
-  private readonly wordService = inject(WordService);
-
+export class WordCardComponent {
   word = input.required<Word>();
-  compact = input(false);
+  startExpanded = input(false);
 
   deleted = output<string>();
   favoriteToggled = output<string>();
 
-  imageUrl = signal<string | null>(null);
   showDeleteDialog = signal(false);
-  isExpanded = signal(false);
-
-  async ngOnInit(): Promise<void> {
-    const word = this.word();
-    if (word.imageId) {
-      const url = await this.wordService.getImageUrl(word.imageId);
-      this.imageUrl.set(url);
-    }
-  }
-
-  ngOnDestroy(): void {
-    const url = this.imageUrl();
-    if (url) {
-      this.wordService.revokeImageUrl(url);
-    }
-  }
+  isExpanded = linkedSignal(() => this.startExpanded());
 
   toggleExpand(): void {
     this.isExpanded.update(v => !v);

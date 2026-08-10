@@ -8,15 +8,9 @@ export interface AIWordResponse {
   pronunciationText: string;
 }
 
-export interface AIImageResponse {
-  imageBlob: Blob;
-  mimeType: string;
-}
-
 export interface AIProvider {
   readonly providerName: string;
   generateWordData(word: string): Promise<AIWordResponse>;
-  generateImage(word: string, definition: string): Promise<AIImageResponse>;
 }
 
 export interface TTSProvider {

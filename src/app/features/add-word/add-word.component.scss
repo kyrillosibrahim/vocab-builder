@@ -47,6 +47,11 @@
 /* ========== FORM ========== */
 .form-section { margin-bottom: 32px; }
 
+.search-field {
+  position: relative;
+  width: 100%;
+}
+
 .input-wrapper {
   display: flex;
   align-items: center;
@@ -63,6 +68,58 @@
     box-shadow: 0 0 0 4px rgba(192, 112, 64, 0.06), 0 8px 24px rgba(192, 112, 64, 0.06);
     background: white;
   }
+}
+
+.suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  z-index: 50;
+  margin-top: 8px;
+  padding: 6px;
+  max-height: 280px;
+  overflow-y: auto;
+  background: #FFFFFF;
+  border: 2px solid #E8DCC8;
+  border-radius: 18px;
+  box-shadow: 0 10px 24px rgba(59, 47, 47, 0.14);
+}
+
+.suggestion-option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 11px 14px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: #3B2F2F;
+  font: inherit;
+  font-size: 0.9375rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover,
+  &:focus-visible,
+  &.is-active {
+    background: #FBF7F2;
+    color: #6B4C3B;
+    outline: none;
+  }
+}
+
+.suggestion-word { font-weight: 600; }
+
+.suggestion-added {
+  margin-left: auto;
+  padding: 3px 8px;
+  border-radius: 100px;
+  background: #F7F0E8;
+  color: #8A7A6A;
+  font-size: 0.6875rem;
+  font-weight: 600;
 }
 
 .input-icon {
@@ -191,6 +248,7 @@
   .page { padding: 32px 16px; }
   .hero-title { font-size: 2rem; }
   .hero-subtitle { font-size: 0.9375rem; }
+  .search-field, .suggestions-dropdown { width: 100%; }
   .input-wrapper { flex-direction: column; padding: 8px; }
   .input-icon { display: none; }
   .input-field { width: 100%; padding: 12px 14px; }

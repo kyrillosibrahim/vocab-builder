@@ -29,35 +29,6 @@
   background: linear-gradient(90deg, #3B2F2F 0%, #6B4C3B 40%, #C07040 70%, #DEB887 100%);
 }
 
-/* ========== IMAGE ========== */
-.card-image {
-  position: relative;
-  height: 180px;
-  overflow: hidden;
-  background: linear-gradient(135deg, #F5F0EA, #EDE4D8);
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.4s;
-  }
-
-  .word-card:hover & img {
-    transform: scale(1.04);
-  }
-}
-
-.image-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.15) 100%);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 12px;
-}
-
 .fav-btn {
   width: 36px;
   height: 36px;
@@ -195,23 +166,26 @@
   line-height: 1.65;
 }
 
-/* ========== EXAMPLES ========== */
-.examples-section {
-  border-top: 1px solid rgba(232, 220, 200, 0.6);
-  padding-top: 12px;
+/* ========== DETAILS ========== */
+.details-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .expand-btn {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
   background: none;
   border: none;
+  border-top: 1px solid rgba(232, 220, 200, 0.6);
   cursor: pointer;
   font-size: 0.8125rem;
   font-weight: 600;
   color: #C07040;
-  padding: 4px 0;
+  padding: 12px 0 4px;
   transition: color 0.2s;
 
   &:hover { color: #6B4C3B; }
@@ -234,7 +208,6 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-top: 12px;
 }
 
 .example-item {

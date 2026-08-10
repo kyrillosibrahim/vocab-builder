@@ -44,16 +44,25 @@ import { WordFilter } from '../../../core/models/word.model';
         <div class="filters-panel">
           <div class="filters-grid">
             <!-- Favorites -->
-            <button (click)="toggleFavorites()" class="filter-item" [class.active]="favoritesOnly()">
-              <div class="filter-item-icon" [class.active]="favoritesOnly()">
-                <svg width="16" height="16" [attr.fill]="favoritesOnly() ? 'currentColor' : 'none'"
-                     stroke="currentColor" viewBox="0 0 24 24">
+            <div class="filter-group">
+              <label class="filter-group-label">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
                 </svg>
-              </div>
-              <span class="filter-item-label">Favorites only</span>
-            </button>
+                Show
+              </label>
+              <button (click)="toggleFavorites()" class="filter-item" [class.active]="favoritesOnly()">
+                <div class="filter-item-icon" [class.active]="favoritesOnly()">
+                  <svg width="16" height="16" [attr.fill]="favoritesOnly() ? 'currentColor' : 'none'"
+                       stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                  </svg>
+                </div>
+                <span class="filter-item-label">Favorites only</span>
+              </button>
+            </div>
 
             <!-- Sort -->
             <div class="filter-group">
@@ -223,7 +232,7 @@ import { WordFilter } from '../../../core/models/word.model';
       display: flex;
       flex-wrap: wrap;
       gap: 16px;
-      align-items: flex-start;
+      align-items: flex-end;
     }
 
     /* ========== FAVORITE TOGGLE ========== */
@@ -231,8 +240,9 @@ import { WordFilter } from '../../../core/models/word.model';
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 10px 18px 10px 12px;
-      border-radius: 14px;
+      height: 38px;
+      padding: 0 14px 0 7px;
+      border-radius: 12px;
       border: 1px solid #E8DCC8;
       background: white;
       cursor: pointer;
@@ -249,11 +259,12 @@ import { WordFilter } from '../../../core/models/word.model';
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 10px;
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
       background: #F2EBDF;
       color: #8A7A6A;
+      flex-shrink: 0;
       transition: all 0.2s;
       &.active {
         background: rgba(192, 112, 64, 0.08);
@@ -290,6 +301,7 @@ import { WordFilter } from '../../../core/models/word.model';
     /* ========== SORT BUTTONS ========== */
     .sort-options {
       display: flex;
+      height: 38px;
       background: white;
       border: 1px solid #E8DCC8;
       border-radius: 12px;
@@ -297,7 +309,8 @@ import { WordFilter } from '../../../core/models/word.model';
     }
 
     .sort-btn {
-      padding: 8px 16px;
+      height: 100%;
+      padding: 0 16px;
       border: none;
       background: transparent;
       font-size: 0.8125rem;
@@ -328,7 +341,9 @@ import { WordFilter } from '../../../core/models/word.model';
 
     /* ========== DATE INPUT ========== */
     .date-input {
-      padding: 8px 14px;
+      height: 38px;
+      padding: 0 14px;
+      min-width: 170px;
       border-radius: 12px;
       border: 1px solid #E8DCC8;
       background: white;
@@ -378,7 +393,11 @@ import { WordFilter } from '../../../core/models/word.model';
       .filter-toggle { padding: 10px 12px; }
       .filters-grid { flex-direction: column; gap: 12px; }
       .sort-btn { padding: 8px 12px; font-size: 0.75rem; }
+      .filter-group { width: 100%; }
       .filter-item { width: 100%; }
+      .date-input { width: 100%; min-width: 0; }
+      .sort-options { width: 100%; }
+      .sort-btn { flex: 1; }
     }
   `,
 })

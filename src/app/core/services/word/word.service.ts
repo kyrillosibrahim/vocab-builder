@@ -42,25 +42,10 @@ export class WordService {
       this.loadingMessage.set('Generating definitions and translations...');
       const aiData = await this.aiProvider.generateWordData(normalizedWord);
 
-      // Step 2: Generate image from AI
-      this.loadingMessage.set('Creating vocabulary image...');
-      const imageResponse = await this.aiProvider.generateImage(normalizedWord, aiData.englishDefinition);
-
-      // Step 3: Store image blob
       const wordId = crypto.randomUUID();
       const now = new Date().toISOString();
-      const imageId = crypto.randomUUID();
 
-      await this.storage.saveBlob({
-        id: imageId,
-        data: imageResponse.imageBlob,
-        mimeType: imageResponse.mimeType,
-        wordId,
-        type: 'image',
-        createdAt: now,
-      });
-
-      // Step 4: Create and store word
+      // Step 2: Create and store word
       const word: Word = {
         id: wordId,
         englishWord: normalizedWord,
@@ -69,7 +54,6 @@ export class WordService {
         arabicDefinition: aiData.arabicDefinition,
         exampleSentences: aiData.exampleSentences,
         pronunciationText: aiData.pronunciationText,
-        imageId,
         isFavorite: false,
         createdAt: now,
         updatedAt: now,
@@ -77,7 +61,7 @@ export class WordService {
 
       await this.storage.addWord(word);
 
-      // Step 5: Update reactive state
+      // Step 3: Update reactive state
       this.words.update(current => [word, ...current]);
       this.loadingMessage.set('');
 
@@ -126,15 +110,6 @@ export class WordService {
 
   async searchWords(filter: WordFilter): Promise<Word[]> {
     return this.storage.getFilteredWords(filter);
-  }
-
-  async getImageUrl(imageId: string | null): Promise<string | null> {
-    if (!imageId) return null;
-    return this.storage.getBlobUrl(imageId);
-  }
-
-  revokeImageUrl(url: string): void {
-    this.storage.revokeObjectUrl(url);
   }
 
   clearError(): void {

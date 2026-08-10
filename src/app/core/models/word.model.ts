@@ -11,7 +11,6 @@ export interface Word {
   arabicDefinition: string;
   exampleSentences: ExampleSentence[];
   pronunciationText: string;
-  imageId: string | null;
   isFavorite: boolean;
   createdAt: string;
   updatedAt: string;
